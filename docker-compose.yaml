@@ -1,0 +1,50 @@
+services:
+  api:
+    profiles:
+      - api
+    build: ./api
+    ports:
+      - "8080:8080"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    networks:
+      - asterisk-net
+
+  redis:
+    profiles:
+      - test
+      - asterisk-test
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - asterisk-net
+
+  asterisk:
+    profiles:
+      - asterisk
+#    network_mode: host
+    ports:
+      - "50605:50605/udp"
+    build:
+      context: .
+      dockerfile: docker/asterisk/Dockerfile
+    restart: always
+    volumes:
+      - ./docker/asterisk/config:/etc/asterisk
+    networks:
+      - asterisk-net
+    environment:
+      - TZ=Europe/Moscow
+
+networks:
+  asterisk-net:
+    driver: bridge
+
+volumes:
+  redis_data:
