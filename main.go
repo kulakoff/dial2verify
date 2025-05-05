@@ -58,11 +58,13 @@ func checkPhone(c echo.Context) error {
 	if exists == 0 {
 		return c.JSON(http.StatusNotFound, map[string]interface{}{
 			"found": exists == 1,
+			"phone": phone,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"found": exists == 1,
+		"phone": phone,
 	})
 }
 
