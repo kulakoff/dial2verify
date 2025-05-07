@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"regexp"
 	"time"
 )
 
@@ -46,6 +47,12 @@ func initRedis() {
 func checkPhone(c echo.Context) error {
 	phone := c.Param("phone")
 	ctx := c.Request().Context()
+	if !regexp.MustCompile(`^7[0-9]{10}$`).MatchString(phone) {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"status":  "error",
+			"message": "Invalid phodenumber",
+		})
+	}
 
 	exists, err := rdb.Exists(ctx, "incoming_call_"+phone).Result()
 	if err != nil {
