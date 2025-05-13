@@ -1,12 +1,12 @@
 local redis = {
-    _VERSION     = 'redis-lua 2.0.5-dev',
-    _DESCRIPTION = 'A Lua client library for the redis key value storage system.',
+    _VERSION     = 'storage-lua 2.0.5-dev',
+    _DESCRIPTION = 'A Lua client library for the storage key value storage system.',
     _COPYRIGHT   = 'Copyright (C) 2009-2012 Daniele Alessandri',
 }
 
 -- The following line is used for backwards compatibility in order to keep the `Redis`
 -- global module name. Using `Redis` is now deprecated so you should explicitly assign
--- the module to a local variable when requiring it: `local redis = require('redis')`.
+-- the module to a local variable when requiring it: `local storage = require('storage')`.
 Redis = redis
 
 local unpack = _G.unpack or table.unpack
@@ -327,7 +327,7 @@ function response.read(client)
 
    -- error reply
     elseif prefix == '-' then
-        return client.error('redis error: ' .. data)
+        return client.error('storage error: ' .. data)
 
    -- integer reply
     elseif prefix == ':' then
@@ -499,7 +499,7 @@ client_prototype.pipeline = function(client, block)
     end
 
     -- TODO: this hack is necessary to temporarily reuse the current
-    --       request -> response handling implementation of redis-lua
+    --       request -> response handling implementation of storage-lua
     --       without further changes in the code, but it will surely
     --       disappear when the new command-definition infrastructure
     --       will finally be in place.
@@ -509,7 +509,7 @@ client_prototype.pipeline = function(client, block)
         __index = function(env, name)
             local cmd = client[name]
             if not cmd then
-                client.error('unknown redis command: ' .. name, 2)
+                client.error('unknown storage command: ' .. name, 2)
             end
             return function(self, ...)
                 local reply = cmd(client, ...)
@@ -727,7 +727,7 @@ do
         elseif arg1 then --and arg2, implicitly
             options, block = type(arg1)=="table" and arg1 or { arg1 }, arg2
         else
-            client.error("Invalid parameters for redis transaction.")
+            client.error("Invalid parameters for storage transaction.")
         end
 
         if not options.watch then
@@ -837,7 +837,7 @@ local function create_connection(parameters)
     else
         if parameters.scheme then
             local scheme = parameters.scheme
-            assert(scheme == 'redis' or scheme == 'tcp', 'invalid scheme: '..scheme)
+            assert(scheme == 'storage' or scheme == 'tcp', 'invalid scheme: '..scheme)
         end
         perform_connection, socket = connect_tcp, require('socket').tcp
     end
@@ -1148,7 +1148,7 @@ redis.commands = {
     punsubscribe     = command('PUNSUBSCRIBE'), -- >= 2.0
     publish          = command('PUBLISH'),      -- >= 2.0
 
-    -- redis scripting
+    -- storage scripting
     eval             = command('EVAL'),         -- >= 2.6
     evalsha          = command('EVALSHA'),      -- >= 2.6
     script           = command('SCRIPT'),       -- >= 2.6

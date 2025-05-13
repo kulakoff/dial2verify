@@ -30,7 +30,7 @@ local function init_redis()
     end
 end
 
---redis_conn = redis.connect({
+--redis_conn = storage.connect({
 --    host = redis_server_host,
 --    port = redis_server_port
 --})
