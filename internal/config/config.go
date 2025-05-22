@@ -1,6 +1,9 @@
 package config
 
 import (
+	"fmt"
+	"github.com/joho/godotenv"
+	"log/slog"
 	"os"
 )
 
@@ -18,23 +21,33 @@ type ApiConfig struct {
 	Key  string
 }
 
-func Load() (Config, error) {
+func Load() (*Config, error) {
+	slog.Debug("load config start")
+	if err := godotenv.Load(); err != nil {
+		slog.Warn("No .env file found")
+	}
 
-	redisCfg := RedisConfig{
-		Host:     getEnv("REDIS_HOST", "storage"),
-		Port:     getEnv("REDIS_PORT", "6379"),
-		Password: getEnv("REDIS_PASSWORD", ""),
+	cfg := Config{
+		Redis: RedisConfig{
+			Host:     getEnv("REDIS_HOST", "storage"),
+			Port:     getEnv("REDIS_PORT", "6379"),
+			Password: getEnv("REDIS_PASSWORD", ""),
+		},
+		API: ApiConfig{
+			Port: getEnv("API_PORT", "8080"),
+			Key:  getEnv("API_KEY", ""),
+		},
 	}
-	apiCfg := ApiConfig{
-		Port: getEnv("APIPort", "8080"),
-		Key:  getEnv("APIKey", "your-secret-api-key"),
+
+	if cfg.API.Key == "" {
+		return &Config{}, fmt.Errorf("API_KEY is required")
 	}
-	cfg := Config{redisCfg, apiCfg}
-	return cfg, nil
+
+	return &cfg, nil
 }
 
 func getEnv(key, defaultValue string) string {
-	if value, exist := os.LookupEnv(key); exist {
+	if value, exists := os.LookupEnv(key); exists {
 		return value
 	}
 	return defaultValue
