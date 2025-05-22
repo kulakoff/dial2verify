@@ -2,12 +2,14 @@ services:
   api:
     profiles:
       - api
-    build: ./api
+      - asterisk
+    build:
+      context: .
+      dockerfile: docker/app/DockerFile
     ports:
       - "8080:8080"
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+    env_file:
+      - .env
     depends_on:
       - redis
     networks:
@@ -15,6 +17,7 @@ services:
 
   redis:
     profiles:
+      - api
       - asterisk
     image: redis:alpine
     ports:
@@ -26,6 +29,7 @@ services:
 
   asterisk:
     profiles:
+      - api
       - asterisk
 #    network_mode: host
     ports:

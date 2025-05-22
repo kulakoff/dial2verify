@@ -12,6 +12,7 @@ local redis_conn
 local redis_configured = false
 
 local function init_redis()
+    logDebug("INIT REDIS")
     local ok, err = pcall(function()
         redis_conn = redis.connect({
             host = os.getenv("REDIS_HOST") or "redis",
@@ -19,7 +20,7 @@ local function init_redis()
             password = os.getenv("REDIS_PASSWORD") or nil
         })
 
-        -- Тестовый запрос для проверки подключения
+        -- check connection
         redis_conn:ping()
         redis_configured = true
     end)
@@ -29,11 +30,6 @@ local function init_redis()
         redis_configured = false
     end
 end
-
---redis_conn = storage.connect({
---    host = redis_server_host,
---    port = redis_server_port
---})
 
 if redis_server_auth and redis_server_auth ~= nil then
     redis_conn:auth(redis_server_auth)
@@ -55,9 +51,7 @@ function handleIncomingCall(context, extension)
     app.Hangup()
 end
 
---init_redis()
 if not redis_configured then
-    logDebug("INIT REDIS")
     init_redis()
 end
 
