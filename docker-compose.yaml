@@ -2,7 +2,6 @@ services:
   api:
     profiles:
       - api
-      - asterisk
     build:
       context: .
       dockerfile: docker/app/DockerFile
@@ -29,7 +28,6 @@ services:
 
   asterisk:
     profiles:
-      - api
       - asterisk
 #    network_mode: host
     ports:

@@ -62,6 +62,13 @@ luarocks install inspect
 luarocks install luasocket
 luarocks install luasec
 luarocks install lua-cjson 2.1.0-1
+luarocks install redis-lua
+luarocks install lua-log
+
+## Download Lua modules for Asterisk
+#mkdir -p /etc/asterisk/lua
+#curl -sL https://raw.githubusercontent.com/rxi/log.lua/refs/heads/master/log.lua -o /etc/asterisk/lua/log.lua
+#curl -sL https://raw.githubusercontent.com/nrk/redis-lua/refs/heads/version-2.0/src/redis.lua -o /etc/asterisk/lua/redis.lua
 
 mkdir -p /usr/src/asterisk
 

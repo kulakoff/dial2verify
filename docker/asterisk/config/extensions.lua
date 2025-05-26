@@ -1,11 +1,11 @@
 package.path = "/etc/asterisk/?.lua;./live/etc/asterisk/?.lua;/etc/asterisk/custom/?.lua;./live/etc/asterisk/custom/?.lua;/etc/asterisk/lua/?.lua;./live/etc/asterisk/lua/?.lua;./lua/?.lua;./custom/?.lua;" .. package.path
-package.cpath = "/usr/lib/lua/5.3/?.so;" .. package.cpath
+package.cpath = "/usr/lib/lua/5.4/?.so;" .. package.cpath
 
 log = require "log"
 inspect = require "inspect"
-http = require "socket.http"
 redis = require "redis"
 
+-- TODO: refactor configurations
 require "config"
 
 local redis_conn
@@ -31,15 +31,27 @@ local function init_redis()
     end
 end
 
-if redis_server_auth and redis_server_auth ~= nil then
-    redis_conn:auth(redis_server_auth)
-end
 
 function logDebug(v)
     local m = ""
+
+    if channel ~= nil then
+        local l = channel.CDR("linkedid"):get()
+        local u = channel.CDR("uniqueid"):get()
+        local i
+        if l ~= u then
+            i = l .. ": " .. u
+        else
+            i = u
+        end
+        m = i .. ": "
+    end
+
     m = m .. inspect(v)
+
     log.debug(m)
 end
+
 
 function handleIncomingCall(context, extension)
     logDebug("handleIncomingCall")
@@ -54,8 +66,6 @@ end
 if not redis_configured then
     init_redis()
 end
-
-logDebug("START")
 
 extensions = {
     ["from-provider"] = {
