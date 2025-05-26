@@ -1,4 +1,5 @@
 # dial2verify
+A phone verification system using Asterisk PBX, Redis, and a Go-based API. It processes incoming calls, logs caller IDs in Redis, and provides an API to check phone numbers.
 
 make env and edit
 ```shell
