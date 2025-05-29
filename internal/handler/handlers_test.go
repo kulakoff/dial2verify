@@ -14,10 +14,7 @@ import (
 
 func TestPingHandler(t *testing.T) {
 	// make echo
-	e := echo.New()
-
-	// config route
-	e.GET("/ping", PingHandler)
+	e := setupTestEcho(t, &mockStorage{})
 
 	// make HTTP request
 	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
@@ -42,17 +39,22 @@ func (m *mockStorage) Close() error {
 	return nil
 }
 
-func TestCheckPhoneHandler_InvalidFormat(t *testing.T) {
+func setupTestEcho(t *testing.T, store Storage) *echo.Echo {
 	cfg := &config.Config{
 		API: config.APIConfig{Key: "test-api-key"},
 	}
-
 	e := echo.New()
 
-	// config routes
+	e.GET("/ping", PingHandler)
 	api := e.Group("/api")
 	api.Use(mv.APIKeyAuth(cfg.API.Key))
-	api.GET("/checkPhone/:phone", CheckPhoneHandler(&mockStorage{}))
+	api.GET("/checkPhone/:phone", CheckPhoneHandler(store))
+
+	return e
+}
+
+func TestCheckPhoneHandler_InvalidFormat(t *testing.T) {
+	e := setupTestEcho(t, &mockStorage{})
 
 	// make api request with invalid phone number
 	req := httptest.NewRequest(http.MethodGet, "/api/checkPhone/123456789", nil)
