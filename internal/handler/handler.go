@@ -22,7 +22,7 @@ func CheckPhoneHandler(store Storage) echo.HandlerFunc {
 
 		phone := c.Param("phone")
 		if !regexp.MustCompile(`^7[0-9]{10}$`).MatchString(phone) {
-			logger.Error("Invalid phone number format", "phone", phone)
+			logger.Debug("Invalid phone number format", "phone", phone)
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"status":  "error",
 				"message": "Invalid phone number format",
@@ -54,6 +54,6 @@ func PingHandler(c echo.Context) error {
 	if !ok {
 		logger = slog.Default()
 	}
-	logger.Info("PING")
+	logger.Debug("PING")
 	return c.String(http.StatusOK, "pong")
 }
