@@ -1,8 +1,8 @@
 package main
 
 import (
-	"dial2verify/internal/app"
-	"dial2verify/internal/config"
+	"dial2verify/internal/app/dial2verify/config"
+	"dial2verify/internal/pkg/app"
 	"log/slog"
 	"os"
 )
