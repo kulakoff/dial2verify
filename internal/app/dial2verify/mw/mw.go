@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func APIKeyAuth(apiKey string) echo.MiddlewareFunc {
+func Auth(apiKey string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			key := c.Request().Header.Get("X-API-Key")

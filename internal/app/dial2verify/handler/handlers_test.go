@@ -2,9 +2,10 @@ package handler
 
 import (
 	"context"
-	"dial2verify/internal/config"
-	"dial2verify/internal/mw"
-	"dial2verify/internal/storage"
+	"dial2verify/internal/app/dial2verify/config"
+	//"dial2verify/internal/app/dial2verify/handler"
+	"dial2verify/internal/app/dial2verify/mw"
+	"dial2verify/internal/app/dial2verify/storage"
 	"encoding/json"
 	"errors"
 	"github.com/go-redis/redis/v8"
@@ -13,6 +14,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 )
@@ -45,10 +47,16 @@ func setupTestEcho(t *testing.T, store Storage) *echo.Echo {
 		}
 	})
 
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
+
+	h := Handler{s: store, l: logger}
+
 	e.GET("/ping", PingHandler)
 	api := e.Group("/api")
 	api.Use(mw.APIKeyAuth(cfg.API.Key))
-	api.GET("/checkPhone/:phone", CheckPhoneHandler(store))
+	api.GET("/checkPhone/:phone", h.Check)
 
 	return e
 }

@@ -12,12 +12,14 @@ import (
 )
 
 type App struct {
-	echo  *echo.Echo
-	cfg   *config.Config
-	store storage2.Storage
+	echo    *echo.Echo
+	cfg     *config.Config
+	store   storage2.Storage
+	logger  *slog.Logger
+	handler *handler.Handler
 }
 
-func New(cfg *config.Config) (*App, error) {
+func New(cfg *config.Config, logger *slog.Logger) (*App, error) {
 	// init Echo
 	e := echo.New()
 	e.Use(echoMW.Recover())
@@ -27,30 +29,32 @@ func New(cfg *config.Config) (*App, error) {
 	// init storage
 	store, err := storage2.NewRedisStorage(cfg.Redis)
 	if err != nil {
-		slog.Error("Failed to init storage", "error", err)
+		logger.Error("Failed to init storage", "error", err)
 		os.Exit(1)
 	}
 
-	e.GET("/ping", handler.PingHandler)
+	// init handler
+	h := handler.New(store, logger)
 
+	e.GET("/ping", h.Ping)
 	group := e.Group("/api")
-	group.Use(mw.APIKeyAuth(cfg.API.Key))
-	group.GET("/checkPhone/:phone", handler.CheckPhoneHandler(store))
+	group.GET("/checkPhone/:phone", h.Check, mw.Auth(cfg.API.Key))
 
 	return &App{
-		echo:  e,
-		cfg:   cfg,
-		store: store,
+		echo:   e,
+		cfg:    cfg,
+		store:  store,
+		logger: logger,
 	}, nil
 }
 
 func (a *App) Run() error {
-	slog.Info("Server started", "port", a.cfg.API.Port)
+	a.logger.Info("Server started", "port", a.cfg.API.Port)
 	defer a.store.Close()
 
 	err := a.echo.Start(":" + a.cfg.API.Port)
 	if err != nil {
-		slog.Warn("Error running server", "error", err)
+		a.logger.Warn("Error running server", "error", err)
 	}
 	return nil
 }

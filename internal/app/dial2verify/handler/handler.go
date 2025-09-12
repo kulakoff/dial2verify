@@ -1,59 +1,48 @@
 package handler
 
 import (
-	"context"
+	"dial2verify/internal/app/dial2verify/storage"
 	"github.com/labstack/echo/v4"
 	"log/slog"
 	"net/http"
 	"regexp"
 )
 
-type Storage interface {
-	CheckPhone(ctx context.Context, phone string) (bool, error)
-	Close() error
+type Handler struct {
+	s storage.Storage
+	l *slog.Logger
 }
 
-func CheckPhoneHandler(store Storage) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		logger, ok := c.Request().Context().Value("logger").(*slog.Logger)
-		if !ok {
-			logger = slog.Default()
-		}
+func New(s storage.Storage, l *slog.Logger) *Handler {
+	return &Handler{s: s, l: l}
+}
 
-		phone := c.Param("phone")
-		if !regexp.MustCompile(`^7[0-9]{10}$`).MatchString(phone) {
-			logger.Debug("Invalid phone number format", "phone", phone)
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"status":  "error",
-				"message": "Invalid phone number format",
-			})
-		}
+func (h *Handler) Ping(c echo.Context) error {
+	return c.String(http.StatusOK, "pong")
+}
 
-		ctx := c.Request().Context()
-		exists, err := store.CheckPhone(ctx, phone)
-		if err != nil {
-			logger.Error("Storage error", "phone", phone, "error", err)
-			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"status":  "error",
-				"message": "Internal server error",
-			})
-		}
-
-		logger.Debug("Storage response", "phone", phone, "exists", exists)
-
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"status": "success",
-			"found":  exists,
-			"phone":  phone,
+func (h *Handler) Check(c echo.Context) error {
+	phone := c.Param("phone")
+	if !regexp.MustCompile(`^7[0-9]{10}$`).MatchString(phone) {
+		h.l.Debug("Invalid phone number format", "phone", phone)
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"status":  "error",
+			"message": "Invalid phone number format",
 		})
 	}
-}
 
-func PingHandler(c echo.Context) error {
-	logger, ok := c.Request().Context().Value("logger").(*slog.Logger)
-	if !ok {
-		logger = slog.Default()
+	exists, err := h.s.CheckPhone(c.Request().Context(), phone)
+	if err != nil {
+		h.l.Error("Storage error", "phone", phone, "error", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"status":  "error",
+			"message": "Internal server error",
+		})
 	}
-	logger.Debug("PING")
-	return c.String(http.StatusOK, "pong")
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": "success",
+		"found":  exists,
+		"phone":  phone,
+	})
 }

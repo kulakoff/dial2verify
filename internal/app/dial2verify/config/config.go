@@ -22,7 +22,7 @@ type APIConfig struct {
 }
 
 func Load() (*Config, error) {
-	slog.Debug("load config start")
+	slog.Debug("Load config start")
 	if err := godotenv.Load(); err != nil {
 		slog.Warn("No .env file found")
 	}
