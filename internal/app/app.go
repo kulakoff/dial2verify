@@ -31,7 +31,6 @@ func New(cfg *config.Config) (*App, error) {
 		os.Exit(1)
 	}
 
-	// TODO: pack routes
 	e.GET("/ping", handler.PingHandler)
 
 	group := e.Group("/api")
