@@ -1,6 +1,7 @@
 services:
   api:
     profiles:
+      - all
       - api
     build:
       context: .
@@ -14,10 +15,29 @@ services:
     networks:
       - asterisk-net
 
+  test-api:
+    profiles:
+      - test
+    build:
+      context: .
+      dockerfile: docker/app/DockerFile
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    command: go test -v ./internal/handler
+    depends_on:
+      - redis
+    networks:
+      - asterisk-net
+
   redis:
     profiles:
+      - all
       - api
       - asterisk
+      - test
+      - redis
     image: redis:alpine
     ports:
       - "6379:6379"
@@ -28,6 +48,7 @@ services:
 
   asterisk:
     profiles:
+      - all
       - asterisk
 #    network_mode: host
     ports:
@@ -40,8 +61,8 @@ services:
       - ./docker/asterisk/config:/etc/asterisk
     networks:
       - asterisk-net
-    environment:
-      - TZ=Europe/Moscow
+    env_file:
+      - .env
 
 networks:
   asterisk-net:

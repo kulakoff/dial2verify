@@ -2,7 +2,7 @@ package storage
 
 import (
 	"context"
-	"dial2verify/internal/config"
+	"dial2verify/internal/app/dial2verify/config"
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"log/slog"

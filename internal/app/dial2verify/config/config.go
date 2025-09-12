@@ -9,20 +9,20 @@ import (
 
 type Config struct {
 	Redis RedisConfig
-	API   ApiConfig
+	API   APIConfig
 }
 type RedisConfig struct {
 	Host     string
 	Port     string
 	Password string
 }
-type ApiConfig struct {
+type APIConfig struct {
 	Port string
 	Key  string
 }
 
 func Load() (*Config, error) {
-	slog.Debug("load config start")
+	slog.Debug("Load config start")
 	if err := godotenv.Load(); err != nil {
 		slog.Warn("No .env file found")
 	}
@@ -33,7 +33,7 @@ func Load() (*Config, error) {
 			Port:     getEnv("REDIS_PORT", "6379"),
 			Password: getEnv("REDIS_PASSWORD", ""),
 		},
-		API: ApiConfig{
+		API: APIConfig{
 			Port: getEnv("API_PORT", "8080"),
 			Key:  getEnv("API_KEY", ""),
 		},
