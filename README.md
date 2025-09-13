@@ -17,3 +17,9 @@ start
 ```shell
 docker compose --profile api up -d
 ```
+
+example API request
+```shell
+curl --location 'http://localhost:8080/api/checkPhone/79126745622' \
+--header 'X-API-Key: your_api_key'
+```
