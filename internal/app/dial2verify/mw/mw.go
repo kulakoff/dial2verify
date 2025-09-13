@@ -1,6 +1,7 @@
 package mw
 
 import (
+	"dial2verify/pkg/response"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -14,10 +15,7 @@ func Auth(apiKey string) echo.MiddlewareFunc {
 			}
 
 			if key != apiKey {
-				return c.JSON(http.StatusUnauthorized, map[string]string{
-					"status":  "error",
-					"message": "Invalid or missing API key",
-				})
+				return c.JSON(http.StatusUnauthorized, response.Error("Invalid or missing API key"))
 			}
 
 			return next(c)

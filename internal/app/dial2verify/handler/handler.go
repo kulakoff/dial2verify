@@ -2,6 +2,7 @@ package handler
 
 import (
 	"dial2verify/internal/app/dial2verify/storage"
+	"dial2verify/pkg/response"
 	"github.com/labstack/echo/v4"
 	"log/slog"
 	"net/http"
@@ -25,24 +26,16 @@ func (h *Handler) Check(c echo.Context) error {
 	phone := c.Param("phone")
 	if !regexp.MustCompile(`^7[0-9]{10}$`).MatchString(phone) {
 		h.l.Debug("Invalid phone number format", "phone", phone)
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"status":  "error",
-			"message": "Invalid phone number format",
-		})
+		return c.JSON(http.StatusBadRequest,
+			response.Error("Invalid phone number format"))
 	}
 
 	exists, err := h.s.CheckPhone(c.Request().Context(), phone)
 	if err != nil {
 		h.l.Error("Storage error", "phone", phone, "error", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"status":  "error",
-			"message": "Internal server error",
-		})
+		return c.JSON(http.StatusInternalServerError,
+			response.Error("Internal server error"))
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": "success",
-		"found":  exists,
-		"phone":  phone,
-	})
+	return c.JSON(http.StatusOK, response.SuccessPhoneCheck(phone, exists))
 }

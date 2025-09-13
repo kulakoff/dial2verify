@@ -36,9 +36,8 @@ func New(cfg *config.Config, logger *slog.Logger) (*App, error) {
 	// init handler
 	h := handler.New(store, logger)
 
-	e.GET("/ping", h.Ping)
-	group := e.Group("/api")
-	group.GET("/checkPhone/:phone", h.Check, mw.Auth(cfg.API.Key))
+	e.GET("/api/health", h.Ping)
+	e.GET("/api/checkPhone/:phone", h.Check, mw.Auth(cfg.API.Key))
 
 	return &App{
 		echo:   e,

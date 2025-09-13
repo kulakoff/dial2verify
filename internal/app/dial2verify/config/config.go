@@ -5,6 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	"log/slog"
 	"os"
+	"strconv"
 )
 
 type Config struct {
@@ -17,8 +18,10 @@ type RedisConfig struct {
 	Password string
 }
 type APIConfig struct {
-	Port string
-	Key  string
+	Port      string
+	Key       string
+	RateLimit int
+	RateBurst int
 }
 
 func Load() (*Config, error) {
@@ -46,9 +49,20 @@ func Load() (*Config, error) {
 	return &cfg, nil
 }
 
+// get env string value
 func getEnv(key, defaultValue string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
+	}
+	return defaultValue
+}
+
+// get env int value
+func getEnvAsInt(key string, defaultValue int) int {
+	if value, exists := os.LookupEnv(key); exists {
+		if intValue, err := strconv.Atoi(value); err == nil {
+			return intValue
+		}
 	}
 	return defaultValue
 }
