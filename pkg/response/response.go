@@ -8,8 +8,8 @@ type PhoneResponse struct {
 }
 
 type PhoneResponseErr struct {
-	Status string `json:"status"`
-	Error  string `json:"error,omitempty"`
+	Status  string `json:"status"`
+	Message string `json:"message,omitempty"`
 }
 
 func SuccessPhoneCheck(phone string, found bool) *PhoneResponse {
@@ -22,7 +22,7 @@ func SuccessPhoneCheck(phone string, found bool) *PhoneResponse {
 
 func Error(msg string) *PhoneResponseErr {
 	return &PhoneResponseErr{
-		Status: "error",
-		Error:  msg,
+		Status:  "error",
+		Message: msg,
 	}
 }

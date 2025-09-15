@@ -32,7 +32,7 @@ func (m *mockStorage) Close() error {
 	return nil
 }
 
-func setupTestEcho(t *testing.T, store Storage) *echo.Echo {
+func setupTestEcho(t *testing.T, store storage.Storage) *echo.Echo {
 	cfg := &config.Config{
 		API: config.APIConfig{
 			Key: "test-api-key",
@@ -53,9 +53,9 @@ func setupTestEcho(t *testing.T, store Storage) *echo.Echo {
 
 	h := Handler{s: store, l: logger}
 
-	e.GET("/ping", PingHandler)
+	e.GET("/ping", h.Ping)
 	api := e.Group("/api")
-	api.Use(mw.APIKeyAuth(cfg.API.Key))
+	api.Use(mw.Auth(cfg.API.Key))
 	api.GET("/checkPhone/:phone", h.Check)
 
 	return e
@@ -77,7 +77,7 @@ func TestCheckPhoneHandler(t *testing.T) {
 		name           string
 		phone          string
 		apiKey         string
-		storage        Storage
+		storage        storage.Storage
 		expectedStatus int
 		expectedResp   map[string]interface{}
 	}{
