@@ -9,6 +9,8 @@ import (
 	"regexp"
 )
 
+var phonePattern = regexp.MustCompile(`^7[0-9]{10}$`)
+
 type Handler struct {
 	s storage.Storage
 	l *slog.Logger
@@ -24,7 +26,7 @@ func (h *Handler) Ping(c echo.Context) error {
 
 func (h *Handler) Check(c echo.Context) error {
 	phone := c.Param("phone")
-	if !regexp.MustCompile(`^7[0-9]{10}$`).MatchString(phone) {
+	if !phonePattern.MatchString(phone) {
 		h.l.Debug("Invalid phone number format", "phone", phone)
 		return c.JSON(http.StatusBadRequest,
 			response.Error("Invalid phone number format"))
