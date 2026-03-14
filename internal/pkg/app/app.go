@@ -7,6 +7,7 @@ import (
 	storage2 "dial2verify/internal/app/dial2verify/storage"
 	"github.com/labstack/echo/v4"
 	echoMW "github.com/labstack/echo/v4/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log/slog"
 	"os"
 )
@@ -36,8 +37,13 @@ func New(cfg *config.Config, logger *slog.Logger) (*App, error) {
 	// init handler
 	h := handler.New(store, logger)
 
+	// register routes
+	// Public API
 	e.GET("/api/health", h.Ping)
 	e.GET("/api/checkPhone/:phone", h.Check, mw.Auth(cfg.API.Key))
+
+	// Metrics
+	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 
 	return &App{
 		echo:   e,

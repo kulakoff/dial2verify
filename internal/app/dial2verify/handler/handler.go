@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"regexp"
+	"time"
 )
 
 var phonePattern = regexp.MustCompile(`^7[0-9]{10}$`)
@@ -25,8 +26,13 @@ func (h *Handler) Ping(c echo.Context) error {
 }
 
 func (h *Handler) Check(c echo.Context) error {
+	start := time.Now()
+	checkPhoneRequestsTotal.Inc()
+	defer checkPhoneDurationSeconds.Observe(time.Since(start).Seconds())
+
 	phone := c.Param("phone")
 	if !phonePattern.MatchString(phone) {
+		checkPhoneInvalidTotal.Inc()
 		h.l.Debug("Invalid phone number format", "phone", phone)
 		return c.JSON(http.StatusBadRequest,
 			response.Error("Invalid phone number format"))
@@ -34,9 +40,16 @@ func (h *Handler) Check(c echo.Context) error {
 
 	exists, err := h.s.CheckPhone(c.Request().Context(), phone)
 	if err != nil {
+		checkPhoneErrorsTotal.Inc()
 		h.l.Error("Storage error", "phone", phone, "error", err)
 		return c.JSON(http.StatusInternalServerError,
 			response.Error("Internal server error"))
+	}
+
+	if exists {
+		checkPhoneFoundTrueTotal.Inc()
+	} else {
+		checkPhoneFoundFalseTotal.Inc()
 	}
 
 	return c.JSON(http.StatusOK, response.SuccessPhoneCheck(phone, exists))
