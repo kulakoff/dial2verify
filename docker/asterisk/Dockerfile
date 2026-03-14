@@ -1,8 +1,10 @@
-FROM debian:buster-slim
+FROM ubuntu:22.04
 LABEL maintainer="Anton Kulakov"
 
 USER root
-ENV ASTERISK_VERSION 20-current
+ENV ASTERISK_VERSION 22-current
+ENV ASTUSER asterisk
+ENV ASTGROUP asterisk
 
 COPY ./docker/asterisk/build-asterisk.sh /
 RUN sh build-asterisk.sh
@@ -14,5 +16,5 @@ WORKDIR /
 RUN chmod +x /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["/usr/sbin/asterisk", "-mqf", "-C", "/etc/asterisk/asterisk.conf", "-U", "root"]
-#CMD ["/usr/sbin/asterisk", "-f"]
+CMD ["/usr/sbin/asterisk", "-mqf", "-C", "/etc/asterisk/asterisk.conf", "-U", "asterisk"]
+##CMD ["/usr/sbin/asterisk_old", "-f"]

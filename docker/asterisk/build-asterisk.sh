@@ -7,7 +7,7 @@ fi
 
 set -ex
 
-# useradd --system asterisk
+#useradd --system asterisk
 groupadd asterisk
 useradd -g asterisk -s /bin/true -d /var/lib/asterisk asterisk
 
@@ -23,6 +23,8 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --no-i
     ca-certificates \
     curl \
     file \
+    uuid \
+    uuid-dev \
     libcurl4-openssl-dev \
     libedit-dev \
     libgsm1-dev \
@@ -41,11 +43,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --no-i
     procps \
     portaudio19-dev \
     unixodbc \
-    unixodbc-bin \
-    unixodbc-dev \
     odbcinst \
-    uuid \
-    uuid-dev \
     xmlstarlet \
     lua5.3 \
     liblua5.3-dev \

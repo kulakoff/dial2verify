@@ -20,4 +20,10 @@ if [ "${ASTERISK_UID}" != "" ] && [ "${ASTERISK_GID}" != "" ]; then
                                            /var/*/asterisk \
                                            /usr/*/asterisk
 fi
+
+mkdir -p /var/lib/asterisk /var/log/asterisk /var/spool/asterisk /var/run/asterisk
+chown -R ${ASTERISK_USER}:${ASTERISK_USER} \
+  /var/lib/asterisk /var/log/asterisk /var/spool/asterisk /var/run/asterisk
+
+
 exec ${COMMAND}

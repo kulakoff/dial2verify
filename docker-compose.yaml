@@ -36,7 +36,6 @@ services:
       - all
       - api
       - asterisk
-      - test
       - redis
     image: redis:alpine
     ports:
