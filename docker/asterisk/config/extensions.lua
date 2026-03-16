@@ -11,13 +11,14 @@ require "config"
 local redis_conn
 local redis_configured = false
 
-local function init_redis()
+function init_redis()
     logDebug("INIT REDIS")
     local ok, err = pcall(function()
+        logDebug("Connecting to Redis: " .. REDIS_HOST .. ":" .. REDIS_PORT)
         redis_conn = redis.connect({
-            host = os.getenv("REDIS_HOST") or "redis",
-            port = os.getenv("REDIS_PORT") or 6379,
-            password = os.getenv("REDIS_PASSWORD") or nil
+            host = REDIS_HOST,
+            port = REDIS_PORT,
+            password = REDIS_PASSWORD
         })
 
         -- check connection
@@ -28,7 +29,10 @@ local function init_redis()
     if not ok then
         logDebug("Redis connection failed: " .. tostring(err))
         redis_configured = false
+        return false
     end
+
+    return true
 end
 
 
@@ -54,12 +58,12 @@ end
 
 
 function handleIncomingCall(context, extension)
-    logDebug("handleIncomingCall")
     app.Answer()
     local callerId = channel.CALLERID("num"):get() or "unknown"
-    logDebug("Incoming call: " .. callerId)
+    logDebug("handleIncomingCall | Incoming call: " .. callerId)
     local redisKey = "incoming_call_" .. callerId
-    redis_conn:setex(redisKey, 300, os.time())
+    
+    redis_conn:setex(redisKey, REDIS_TTL_INCOMING_CALL, os.time())
     app.Hangup()
 end
 

@@ -37,12 +37,9 @@ func New(cfg *config.Config, logger *slog.Logger) (*App, error) {
 	// init handler
 	h := handler.New(store, logger)
 
-	// register routes
-	// Public API
 	e.GET("/api/health", h.Ping)
 	e.GET("/api/checkPhone/:phone", h.Check, mw.Auth(cfg.API.Key))
 
-	// Metrics
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 
 	return &App{

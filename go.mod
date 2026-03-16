@@ -1,8 +1,6 @@
 module dial2verify
 
-go 1.23.0
-
-toolchain go1.23.12
+go 1.25
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
