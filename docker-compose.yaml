@@ -60,6 +60,8 @@ services:
       - ./docker/asterisk/config:/etc/asterisk
     networks:
       - asterisk-net
+    depends_on:
+      - redis
     env_file:
       - .env
 
