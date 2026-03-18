@@ -1,5 +1,5 @@
 FROM ubuntu:22.04
-LABEL maintainer="Anton Kulakov"
+LABEL maintainer="anton.kulakoff@ya.ru"
 
 USER root
 ENV ASTERISK_VERSION 22-current
@@ -17,4 +17,3 @@ RUN chmod +x /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["/usr/sbin/asterisk", "-mqf", "-C", "/etc/asterisk/asterisk.conf", "-U", "asterisk"]
-##CMD ["/usr/sbin/asterisk_old", "-f"]
