@@ -1,5 +1,6 @@
 docker/asterisk/config/trunks/provider.conf
 docker/asterisk/config/lua
 .idea
+.vscode
 /tmp
 .env
