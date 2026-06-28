@@ -58,13 +58,16 @@ end
 
 
 function handleIncomingCall(context, extension)
-    app.Answer()
+    app.Ringing()
+    app.Wait(1)
+
     local callerId = channel.CALLERID("num"):get() or "unknown"
     logDebug("handleIncomingCall | Incoming call: " .. callerId)
     local redisKey = "incoming_call_" .. callerId
     
     redis_conn:setex(redisKey, REDIS_TTL_INCOMING_CALL, os.time())
-    app.Hangup()
+
+    app.Busy()
 end
 
 if not redis_configured then
